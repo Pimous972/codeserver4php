@@ -1,0 +1,67 @@
+# Utiliser l'image PHP officielle avec FPM pour Symfony
+FROM php:8.3-cli
+
+# Mettre à jour les paquets et installer des dépendances nécessaires
+RUN apt-get update && apt-get install -y \
+    git \
+    libzip-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    zlib1g-dev \
+    unzip \
+    nano  \
+    vim \
+    tree  \
+    curl \
+    npm \
+    bash 
+
+# PHP Extensions
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions \
+    bcmath \
+    gd \
+    imagick \
+    intl \
+    mbstring \
+    http \
+    ctype \
+    pdo_pgsql \
+    tokenizer \
+    pdo_mysql \
+    mysqli \
+    zip \
+    xml
+
+# Installer Composer (outil de gestion des dépendances PHP)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Installer Node.js et Yarn pour la partie Frontend
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install --global yarn
+
+# Installer le serveur VSCode (code-server)
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Installer la Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
+# Configuration de bashrc
+# ajouter des alias Bash et configurer PS1
+RUN echo "alias ll='ls -lah'" >> ~/.bashrc && \
+    echo "alias ll='ls -lah'" >> ~/.bashrc && \
+    echo "alias ss='symfony serve -d --allow-all-ip'" >> ~/.bashrc && \
+    echo "alias slog='symfony server:log'" >> ~/.bashrc && \
+    echo "PS1='\n \[\033[0;35m\]┌──(\[\033[1;33m\]\u@\h\[\033[0;35m\])─($(hostname -I | cut -d " " -f 1))─(\[\033[1;32m\]\w\[\033[0;35m\]) \t \n \[\033[0;35m\]└> ​​\[\033[1;35m\]\$ \[\033[0m\]'" >> ~/.bashrc
+
+# Exposer les ports nécessaires
+EXPOSE 8000 8080
+
+# Définir le répertoire de travail
+WORKDIR /var/www/html
+
+# Démarrer Symfony et VSCode Server dans le même conteneur
+CMD ["bash", "-c", "code-server --bind-addr 0.0.0.0:8080 --auth none"]

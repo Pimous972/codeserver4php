@@ -1,0 +1,11 @@
+services:
+  code-server:
+    image: devcontainercodeserveur:latest
+    container_name: codeserver4php
+    ports:
+      - 8080:8080
+      - 8000:8000
+    volumes:
+      - ./:/workspace
+      
+  
