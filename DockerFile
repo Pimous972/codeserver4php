@@ -1,4 +1,3 @@
-# Utiliser l'image PHP officielle avec FPM pour Symfony
 FROM php:8.3-cli
 
 # Mettre à jour les paquets et installer des dépendances nécessaires
@@ -61,7 +60,7 @@ RUN echo "alias ll='ls -lah'" >> ~/.bashrc && \
 EXPOSE 8000 8080
 
 # Définir le répertoire de travail
-WORKDIR /var/www/html
+WORKDIR /workspace
 
 # Démarrer Symfony et VSCode Server dans le même conteneur
 CMD ["bash", "-c", "code-server --bind-addr 0.0.0.0:8080 --auth none"]
