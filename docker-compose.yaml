@@ -1,11 +1,23 @@
+
 services:
-  code-server:
-    image: devcontainercodeserveur:latest
-    container_name: codeserver4php
+  codeserver4php:
+    build:
+      context: .
+      args:
+        USER_ID: ${PUID}
+        GROUP_ID: ${PGID}
+    container_name: codeserver4php_${USER}
+    hostname: symfonydevcontainer_${USER}
+    restart: unless-stopped
     ports:
-      - 8080:8080
-      - 8000:8000
+      - "${PORT}:8080"  # Code Server accessible sur un port unique par développeur
+      - "8000:8000"  # Code Server accessible sur un port unique par développeur
     volumes:
-      - ./:/workspace
-      
-  
+      - "/home/${USER}/workspace:/home/code/workspace"  # Espace de travail unique pour chaque utilisateur
+      - "/home/${USER}/.gitconfig:/home/code/.gitconfig"
+      - "/home/${USER}/.ssh:/home/code/.ssh"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - PHP_MEMORY_LIMIT=1024M      
+ 
